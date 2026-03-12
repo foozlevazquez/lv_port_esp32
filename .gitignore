@@ -68,3 +68,4 @@ platformio.ini
 
 # VS Code
 .vscode/
+*~

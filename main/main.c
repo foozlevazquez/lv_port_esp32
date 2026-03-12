@@ -26,6 +26,7 @@
 #endif
 
 #include "lvgl_helpers.h"
+#include "lvgl_touch/ft6x36.h"
 
 /*********************
  *      DEFINES
@@ -153,24 +154,58 @@ static void guiTask(void *pvParameter) {
     vTaskDelete(NULL);
 }
 
+static lv_obj_t *corner_btns[4];
+static const char *corner_names[4] = {
+    "top-left", "top-right", "bottom-left", "bottom-right"
+};
+
+static void corner_btn_cb(lv_obj_t *btn, lv_event_t event)
+{
+    if (event != LV_EVENT_PRESSED) return;
+    for (int i = 0; i < 4; i++) {
+        if (btn != corner_btns[i]) continue;
+        lv_indev_t *indev = lv_indev_get_act();
+        lv_point_t pt;
+        lv_indev_get_point(indev, &pt);
+        printf("HIT \"%s\"  raw(%d,%d)  mapped(%d,%d)  hitbox x=%d y=%d w=%d h=%d\n",
+            corner_names[i],
+            ft6x36_last_raw_x, ft6x36_last_raw_y,
+            pt.x, pt.y,
+            lv_obj_get_x(btn), lv_obj_get_y(btn),
+            lv_obj_get_width(btn), lv_obj_get_height(btn));
+        break;
+    }
+}
+
 static void create_helloworld_application(void)
 {
-    /* When using a monochrome display we only show "Hello World" centered on the
-     * screen */
-    /* use a pretty small demo for monochrome displays */
-    /* Get the current screen  */
-    lv_obj_t * scr = lv_disp_get_scr_act(NULL);
+    lv_obj_t *scr = lv_scr_act();
 
-    /*Create a Label on the currently active screen*/
-    lv_obj_t * label1 =  lv_label_create(scr, NULL);
+    static const lv_align_t aligns[4] = {
+        LV_ALIGN_IN_TOP_LEFT,
+        LV_ALIGN_IN_TOP_RIGHT,
+        LV_ALIGN_IN_BOTTOM_LEFT,
+        LV_ALIGN_IN_BOTTOM_RIGHT,
+    };
+    static const lv_point_t offsets[4] = {
+        {5, 5}, {-5, 5}, {5, -5}, {-5, -5}
+    };
 
-    /*Modify the Label's text*/
-    lv_label_set_text(label1, "Hello\nworld");
+    for (int i = 0; i < 4; i++) {
+        lv_obj_t *btn = lv_btn_create(scr, NULL);
+        lv_obj_set_size(btn, 90, 50);
+        lv_obj_align(btn, NULL, aligns[i], offsets[i].x, offsets[i].y);
+        lv_obj_set_event_cb(btn, corner_btn_cb);
+        corner_btns[i] = btn;
 
-    /* Align the Label to the center
-     * NULL means align on parent (which is the screen now)
-     * 0, 0 at the end means an x, y offset after alignment*/
-    lv_obj_align(label1, NULL, LV_ALIGN_CENTER, 0, 0);
+        lv_obj_t *lbl = lv_label_create(btn, NULL);
+        lv_label_set_text(lbl, corner_names[i]);
+
+        printf("btn \"%s\" hitbox: x=%d y=%d w=%d h=%d\n",
+            corner_names[i],
+            lv_obj_get_x(btn), lv_obj_get_y(btn),
+            lv_obj_get_width(btn), lv_obj_get_height(btn));
+    }
 }
 
 static void lv_tick_task(void *arg) {

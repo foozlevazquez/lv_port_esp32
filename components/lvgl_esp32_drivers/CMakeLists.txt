@@ -72,8 +72,9 @@ if(CONFIG_LV_TOUCH_CONTROLLER)
 
     if(CONFIG_LV_TOUCH_DRIVER_PROTOCOL_SPI)
         list(APPEND SOURCES "lvgl_touch/tp_spi.c")
-    elseif(CONFIG_LV_TOUCH_DRIVER_PROTOCOL_I2C)
-        list(APPEND SOURCES "lvgl_touch/tp_i2c.c")
+    elseif(CONFIG_LV_TOUCH_DRIVER_PROTOCOL_I2C OR CONFIG_LV_I2C_TOUCH)
+        list(APPEND SOURCES "lvgl_i2c/i2c_manager.c")
+        list(APPEND LVGL_INCLUDE_DIRS lvgl_i2c)
     endif()
 endif()
 

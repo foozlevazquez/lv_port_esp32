@@ -141,13 +141,17 @@ void lvgl_driver_init(void)
         tp_spi_add_device(TOUCH_SPI_HOST);
         
         touch_driver_init();
+    #elif defined (CONFIG_LV_I2C_TOUCH)
+        /* I2C touch using i2c_manager - it self-initializes on first use */
+        ESP_LOGI(TAG, "Touch uses I2C via i2c_manager");
+        touch_driver_init();
     #elif defined (CONFIG_LV_TOUCH_DRIVER_PROTOCOL_I2C)
         ESP_LOGI(TAG, "Initializing I2C master for touch");
-        
+
         lvgl_i2c_driver_init(TOUCH_I2C_PORT,
             TOUCH_I2C_SDA, TOUCH_I2C_SCL,
             TOUCH_I2C_SPEED_HZ);
-        
+
         touch_driver_init();
     #elif defined (CONFIG_LV_TOUCH_DRIVER_ADC)
         touch_driver_init();

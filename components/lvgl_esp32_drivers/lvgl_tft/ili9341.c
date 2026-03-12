@@ -94,18 +94,22 @@ void ili9341_init(void)
 	//Initialize non-SPI GPIOs
         esp_rom_gpio_pad_select_gpio(ILI9341_DC);
 	gpio_set_direction(ILI9341_DC, GPIO_MODE_OUTPUT);
+#if ILI9341_RST >= 0
         esp_rom_gpio_pad_select_gpio(ILI9341_RST);
 	gpio_set_direction(ILI9341_RST, GPIO_MODE_OUTPUT);
+#endif
 
 #if ILI9341_ENABLE_BACKLIGHT_CONTROL
     esp_rom_gpio_pad_select_gpio(ILI9341_BCKL);
     gpio_set_direction(ILI9341_BCKL, GPIO_MODE_OUTPUT);
 #endif
 	//Reset the display
+#if ILI9341_RST >= 0
 	gpio_set_level(ILI9341_RST, 0);
 	vTaskDelay(100 / portTICK_PERIOD_MS);
 	gpio_set_level(ILI9341_RST, 1);
 	vTaskDelay(100 / portTICK_PERIOD_MS);
+#endif
 
 	ESP_LOGI(TAG, "Initialization.");
 
