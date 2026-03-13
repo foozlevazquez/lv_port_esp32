@@ -140,7 +140,7 @@ bool ft6x36_read(lv_indev_drv_t *drv, lv_indev_data_t *data) {
     ft6x36_last_raw_x = touch_inputs.last_x;
     ft6x36_last_raw_y = touch_inputs.last_y;
 
-#if defined(CONFIG_DISPLAY_ORIENTATION_PORTRAIT) || defined(CONFIG_DISPLAY_ORIENTATION_PORTRAIT_INVERTED)
+#if defined(CONFIG_DISPLAY_ORIENTATION_PORTRAIT)
     /* LVGL applies rotated=1 indev transform: lvgl.x = (VER_RES_MAX-1)-ft.y, lvgl.y = ft.x
      * Pre-compensate so physical portrait coords survive: ft.x=raw.y, ft.y=(VER_RES_MAX-1)-raw.x */
     {
@@ -148,6 +148,21 @@ bool ft6x36_read(lv_indev_drv_t *drv, lv_indev_data_t *data) {
         touch_inputs.last_x = touch_inputs.last_y;
         touch_inputs.last_y = (LV_VER_RES_MAX - 1) - tmp;
     }
+#elif defined(CONFIG_DISPLAY_ORIENTATION_PORTRAIT_INVERTED)
+    /* LVGL applies rotated=1 indev transform: lvgl.x = (VER_RES_MAX-1)-ft.y, lvgl.y = ft.x
+     * Portrait-inverted is 180° from portrait, so pre-compensate accordingly:
+     * ft.x=(HOR_RES_MAX-1)-raw.y, ft.y=raw.x */
+    {
+        int16_t tmp = touch_inputs.last_x;
+        touch_inputs.last_x = (LV_HOR_RES_MAX - 1) - touch_inputs.last_y;
+        touch_inputs.last_y = tmp;
+    }
+#elif defined(CONFIG_DISPLAY_ORIENTATION_LANDSCAPE_INVERTED)
+    /* 180° landscape rotation: invert both axes */
+    touch_inputs.last_x = (LV_HOR_RES_MAX - 1) - touch_inputs.last_x;
+    touch_inputs.last_y = (LV_VER_RES_MAX - 1) - touch_inputs.last_y;
+#else
+    /* LANDSCAPE: raw coordinates are already correct, no transformation needed */
 #endif
 
 #if CONFIG_LV_FT6X36_SWAPXY
