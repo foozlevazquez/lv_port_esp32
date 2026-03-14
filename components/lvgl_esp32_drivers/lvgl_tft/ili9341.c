@@ -37,7 +37,7 @@ static void ili9341_set_orientation(uint8_t orientation);
 
 static void ili9341_send_cmd(uint8_t cmd);
 static void ili9341_send_data(void * data, uint16_t length);
-static void ili9341_send_color(void * data, uint16_t length);
+static void ili9341_send_color(void * data, uint32_t length);
 
 /**********************
  *  STATIC VARIABLES
@@ -214,7 +214,7 @@ static void ili9341_send_data(void * data, uint16_t length)
     disp_spi_send_data(data, length);
 }
 
-static void ili9341_send_color(void * data, uint16_t length)
+static void ili9341_send_color(void * data, uint32_t length)
 {
     disp_wait_for_pending_transactions();
     gpio_set_level(ILI9341_DC, 1);   /*Data mode*/
@@ -236,7 +236,7 @@ static void ili9341_set_orientation(uint8_t orientation)
 #elif defined (CONFIG_LV_PREDEFINED_DISPLAY_WROVER4)
     uint8_t data[] = {0x4C, 0x88, 0x28, 0xE8};
 #elif defined (CONFIG_LV_PREDEFINED_DISPLAY_NONE)
-    uint8_t data[] = {0x48, 0x88, 0x28, 0xE8};
+    uint8_t data[] = {0x40, 0x80, 0x20, 0xE0};
 #endif
 
     ESP_LOGI(TAG, "0x36 command value: 0x%02X", data[orientation]);
