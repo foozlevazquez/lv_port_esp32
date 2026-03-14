@@ -56,6 +56,16 @@ extern "C" {
  *      DEFINES
  *********************/
 
+/* LV_DISP_ROT is 1 when the selected display orientation requires LVGL's
+ * software rotation (i.e. disp_drv.rotated = 1).  Portrait modes use a
+ * landscape-sized render buffer that LVGL must rotate 90° before output;
+ * landscape modes let the hardware MADCTL handle the orientation directly. */
+#if defined CONFIG_DISPLAY_ORIENTATION_PORTRAIT || defined CONFIG_DISPLAY_ORIENTATION_PORTRAIT_INVERTED
+#define LV_DISP_ROT 1
+#else
+#define LV_DISP_ROT 0
+#endif
+
 /**********************
  *      TYPEDEFS
  **********************/
